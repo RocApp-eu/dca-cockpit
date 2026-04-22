@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCA Cockpit, le signal mensuel pour investir en DCA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Light palette, warm editorial */
+    --cream: #F5F1E8;
+    --cream-2: #EDE8DB;
+    --paper: #FBF8F0;
+    --ink: #111111;
+    --ink-soft: #2E2E2E;
+    --ink-mute: #6A6860;
+    --rule: #D9D3C3;
+    --rule-soft: #E5DFCF;
+
+    /* Single accent, warm monochrome */
+    --copper: #C26337;          /* burnt sienna, used for signal/emphasis */
+    --copper-deep: #8C3E1F;     /* hover / press states */
+    --copper-wash: #EEDFCF;     /* tinted backgrounds */
+    --olive: #4A513A;           /* secondary dark accent */
+    --olive-wash: #DDDDCB;
+
+    --grain:
+      radial-gradient(circle at 20% 30%, rgba(17,17,17,0.015) 1px, transparent 1px),
+      radial-gradient(circle at 80% 70%, rgba(17,17,17,0.015) 1px, transparent 1px),
+      radial-gradient(circle at 50% 50%, rgba(17,17,17,0.01) 1px, transparent 1px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Geist', system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01","cv11";
+    line-height: 1.55;
+  }
+  /* Tabular figures for all numeric display */
+  .signal-big, .signal-breakdown, .hero-meta-item .num, .card-num, .s-num, .s-row, .c-num, .calc-controls, .control-label .v { font-variant-numeric: tabular-nums lining-nums; }
+
+  body {
+    overflow-x: hidden;
+    background-image: var(--grain);
+    background-size: 3px 3px, 5px 5px, 7px 7px;
+  }
+
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  /* ── LOGO MARK ──────────────────────────────── */
+  .logo-mark {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    color: var(--ink);
+  }
+  .logo-mark svg { width: 100%; height: 100%; }
+
+  /* ── NAV ────────────────────────────────────── */
+  nav.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    max-width: 1280px;
+    margin: 0 auto;
+    position: relative;
+  }
+  nav.top::after {
+    content: '';
+    position: absolute;
+    left: 48px; right: 48px; bottom: 0;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72;
+    font-size: 19px;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  nav.top .links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+
+  nav.top .links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    position: relative;
+    transition: color .2s;
+  }
+  nav.top .links a:hover { color: var(--ink); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--copper-deep); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn.ghost:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.copper { background: var(--copper); }
+  .btn.copper:hover { background: var(--copper-deep); }
+
+  /* ── SECTION LABEL (editorial ruler) ────────── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 48px;
+  }
+  .section-label .num {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    letter-spacing: 0;
+    color: var(--copper);
+    font-variation-settings: "opsz" 72;
+    text-transform: none;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── HERO ───────────────────────────────────── */
+  .hero {
+    padding: 72px 0 120px;
+    position: relative;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 72px;
+    align-items: center;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 32px;
+    padding: 6px 12px 6px 0;
+    border-left: 2px solid var(--copper);
+    padding-left: 14px;
+  }
+
+  h1.display {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    font-size: clamp(56px, 7.2vw, 108px);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    margin-bottom: 32px;
+  }
+  h1.display em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--copper);
+    letter-spacing: -0.015em;
+  }
+
+  /* Drop cap for subtitle */
+  .hero-sub {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 460px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+  .hero-sub::first-letter {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 144;
+    font-size: 52px;
+    float: left;
+    line-height: 0.9;
+    padding: 6px 10px 0 0;
+    color: var(--copper);
+    font-weight: 400;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .hero-meta {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 48px;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+  }
+  .hero-meta-item .num {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144;
+    font-size: 30px;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .hero-meta-item .lbl {
+    font-size: 11px;
+    color: var(--ink-mute);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Signal card (hero right) */
+  .signal-card {
+    background: #141414;
+    color: #F2EEE4;
+    border-radius: 2px;
+    padding: 36px 36px 28px;
+    position: relative;
+    box-shadow:
+      0 60px 80px -30px rgba(17,17,17,0.35),
+      0 2px 4px rgba(17,17,17,0.08);
+    transform: rotate(0.5deg);
+    overflow: hidden;
+  }
+  .signal-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 80% at 15% 0%, rgba(194,99,55,0.22), transparent 55%),
+      radial-gradient(100% 60% at 100% 100%, rgba(74,81,58,0.25), transparent 60%);
+    pointer-events: none;
+  }
+  .signal-card::after {
+    content: '';
+    position: absolute;
+    bottom: 20px; right: 24px;
+    width: 54px; height: 54px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C26337' stroke-width='0.6'><circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='6'/><circle cx='12' cy='12' r='1.5' fill='%23C26337'/></svg>");
+    background-size: contain;
+    opacity: 0.20;
+    pointer-events: none;
+  }
+
+  .signal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #85827A;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .signal-head .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--copper);
+  }
+  .signal-head .live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--copper);
+    box-shadow: 0 0 0 4px rgba(194,99,55,0.18);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    50% { box-shadow: 0 0 0 9px rgba(194,99,55,0.04); }
+  }
+
+  .signal-big {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-variation-settings: "opsz" 144;
+    font-size: 148px;
+    line-height: 0.86;
+    letter-spacing: -0.06em;
+    margin-bottom: 6px;
+    position: relative;
+    display: flex;
+    align-items: baseline;
+  }
+  .signal-big .x {
+    font-size: 52px;
+    color: var(--copper);
+    font-weight: 400;
+    margin-left: 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .signal-verdict {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 21px;
+    color: #CCC7B8;
+    margin-bottom: 30px;
+    line-height: 1.35;
+  }
+
+  .signal-breakdown {
+    border-top: 1px solid rgba(242,238,228,0.1);
+    padding-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+    position: relative;
+  }
+  .signal-breakdown .row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .signal-breakdown .row .k { color: #85827A; letter-spacing: 0.04em; }
+  .signal-breakdown .row .v { color: #F2EEE4; letter-spacing: -0.01em; }
+
+  .signal-foot {
+    margin-top: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    color: #6E6B64;
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION : READING ────────────────────── */
+  section.reading {
+    padding: 120px 0;
+    background: var(--paper);
+    border-top: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+    position: relative;
+  }
+
+  /* Marginalia note */
+  .margin-note {
+    position: absolute;
+    top: 140px;
+    right: 40px;
+    max-width: 180px;
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-mute);
+    line-height: 1.4;
+    padding-left: 16px;
+    border-left: 1px solid var(--copper);
+    transform: rotate(-0.5deg);
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 80px;
+    margin-bottom: 64px;
+    align-items: start;
+  }
+
+  h2.section-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-variation-settings: "opsz" 144;
+    font-size: 56px;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  h2.section-title em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--copper);
+  }
+
+  .section-lede {
+    color: var(--ink-soft);
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 520px;
+    padding-top: 14px;
+  }
+
+  .pedago-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .card {
+    background: var(--cream);
+    border: 1px solid var(--rule);
+    padding: 40px 36px 36px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card.warm {
+    background: linear-gradient(180deg, var(--copper-wash), var(--cream) 90%);
+    border-color: #D9C2A8;
+  }
+  .card.olive {
+    background: linear-gradient(180deg, var(--olive-wash), var(--cream) 90%);
+    border-color: #C9C9B3;
+  }
+
+  .card-idx {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-mute);
+    letter-spacing: -0.01em;
+  }
+
+  .card-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-variation-settings: "opsz" 144;
+    font-size: 104px;
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .card-num .unit {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 42px;
+    color: var(--copper);
+    margin-left: 4px;
+  }
+
+  .card-k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 26px;
+  }
+
+  .card-label {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.015em;
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+
+  .card-body {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .card-gauge {
+    margin-top: 28px;
+    height: 2px;
+    background: var(--rule);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-gauge::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: 2px;
+  }
+  .card-gauge.v25::after { width: 25%; background: var(--copper); }
+  .card-gauge.v82::after { width: 82%; background: var(--olive); }
+
+  .card-foot {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  /* ── CALCULATOR (3 scenarios) ───────────────── */
+  section.calc {
+    padding: 140px 0 120px;
+    background: var(--cream);
+    position: relative;
+  }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .calc-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 36px 32px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    position: relative;
+  }
+  .calc-controls::before {
+    content: 'PARAMÈTRES';
+    position: absolute;
+    top: -7px; left: 24px;
+    background: var(--cream);
+    padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--ink-mute);
+  }
+
+  .control { display: flex; flex-direction: column; gap: 12px; }
+  .control-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .control-label .k {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .control-label .v {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 72;
+  }
+  .control-label .v .u { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 14px; color: var(--copper); margin-left: 2px; }
+
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--rule);
+    outline: none;
+    border-radius: 2px;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--copper);
+    cursor: pointer;
+    border: 3px solid var(--paper);
+    box-shadow: 0 0 0 1px var(--copper);
+  }
+
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 3px;
+    background: var(--cream);
+  }
+  .seg button {
+    background: transparent;
+    border: none;
+    padding: 7px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 1px;
+  }
+  .seg button.active { background: var(--ink); color: var(--paper); }
+
+  /* scenarios */
+  .scenarios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .scenario {
+    padding: 32px 28px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    position: relative;
+    transition: transform .15s ease;
+  }
+  .scenario.realist {
+    background: #141414;
+    color: #F2EEE4;
+    border-color: #141414;
+    transform: translateY(-18px);
+    box-shadow: 0 40px 60px -25px rgba(17,17,17,0.35);
+  }
+  .scenario.realist .s-num { color: #F2EEE4; }
+  .scenario.realist .s-num .eur { color: var(--copper); }
+  .scenario.realist .s-k { color: #85827A; }
+  .scenario.realist .s-sub { color: #B4B0A5; }
+  .scenario.realist .s-sub strong { color: #F2EEE4; }
+  .scenario.realist .s-row { border-top-color: rgba(242,238,228,0.08); }
+
+  .scenario .s-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .scenario .s-badge {
+    padding: 4px 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: var(--cream-2);
+    color: var(--ink-mute);
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .scenario.realist .s-badge {
+    background: var(--copper);
+    color: #141414;
+  }
+  .scenario.pess .s-badge { background: var(--olive-wash); color: var(--olive); }
+
+  .scenario .s-k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin: 0;
+    line-height: 1;
+  }
+  .scenario .s-rate {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+  }
+  .scenario .s-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-variation-settings: "opsz" 144;
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    margin-bottom: 6px;
+  }
+  .scenario .s-num .eur {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--copper);
+    margin-left: 4px;
+  }
+  .scenario .s-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+  .scenario .s-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--rule-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .scenario .s-row .k { color: var(--ink-mute); }
+  .scenario .s-row .v { color: inherit; letter-spacing: -0.01em; }
+
+  /* ── CRASHES EDUCATION ──────────────────────── */
+  .crash-box {
+    margin-top: 56px;
+    padding: 40px 44px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 48px;
+    position: relative;
+  }
+  .crash-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 3px; height: 100%;
+    background: var(--copper);
+  }
+
+  .crash-box h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144;
+    font-size: 32px;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 14px;
+  }
+  .crash-box h3 em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--copper);
+  }
+  .crash-box .note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .crash-table {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .crash-cell .c-num {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-variation-settings: "opsz" 144;
+    font-size: 44px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1;
+  }
+  .crash-cell .c-num .u {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--copper);
+  }
+  .crash-cell .c-lbl {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  /* ── METHOD (dark strip) ────────────────────── */
+  section.how {
+    padding: 140px 0;
+    background: #141414;
+    color: #F2EEE4;
+    position: relative;
+    overflow: hidden;
+  }
+  section.how::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 40% at 10% 0%, rgba(194,99,55,0.10), transparent 70%),
+      radial-gradient(60% 40% at 90% 100%, rgba(74,81,58,0.14), transparent 70%);
+    pointer-events: none;
+  }
+  section.how .section-head { position: relative; }
+  section.how .section-title { color: #F2EEE4; }
+  section.how .section-title em { color: var(--copper); }
+  section.how .section-lede { color: #A8A49A; }
+  section.how .section-label { color: #85827A; }
+  section.how .section-label .num { color: var(--copper); }
+  section.how .section-label .line { background: #2B2A26; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 40px;
+    position: relative;
+  }
+  .step {
+    border-top: 1px solid rgba(242,238,228,0.14);
+    padding-top: 28px;
+    position: relative;
+  }
+  .step .roman {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 40px;
+    color: var(--copper);
+    position: absolute;
+    top: -10px;
+    right: 0;
+    letter-spacing: -0.02em;
+  }
+  .step-n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--copper);
+    margin-bottom: 22px;
+  }
+  .step h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    line-height: 1.15;
+  }
+  .step p {
+    color: #A8A49A;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .formula {
+    margin-top: 80px;
+    padding: 32px;
+    border: 1px dashed rgba(242,238,228,0.2);
+    background: rgba(242,238,228,0.02);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    color: #CFCBBF;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .formula .op { color: var(--copper); padding: 0 6px; }
+
+  /* ── CROSS-SELL APP BAR ─────────────────────── */
+  .app-bar {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 32px 40px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 32px;
+    align-items: center;
+    max-width: 1280px;
+    margin: 100px auto 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .app-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 80% at 100% 50%, rgba(194,99,55,0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .app-badge {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    background: var(--ink);
+    display: grid; place-items: center;
+    color: var(--copper);
+    position: relative;
+  }
+  .app-badge svg { width: 28px; height: 28px; }
+  .app-bar h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+  .app-bar h3 em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--copper); }
+  .app-bar p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* ── FOOTER ─────────────────────────────────── */
+  footer {
+    padding: 72px 48px 40px;
+    max-width: 1280px;
+    margin: 0 auto;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 48px;
+  }
+  footer .col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  footer .col a {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  footer .col a:hover { color: var(--ink); }
+  footer .brand p {
+    font-size: 13px;
+    color: var(--ink-mute);
+    margin-top: 16px;
+    line-height: 1.6;
+    max-width: 320px;
+  }
+  .disclaimer {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 48px 56px;
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    line-height: 1.7;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 980px) {
+    .hero-grid, .section-head, .pedago-cards, .calc-grid, .steps, .scenarios, .crash-box, .crash-table, footer, .app-bar { grid-template-columns: 1fr; gap: 28px; }
+    nav.top, .wrap { padding: 20px 24px; }
+    h1.display { font-size: 54px; }
+    .signal-big { font-size: 104px; }
+    .scenario.realist { transform: none; }
+    .margin-note { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG symbol for logo mark (reticle / altimeter) -->
+<svg width="0" height="0" style="position:absolute;">
+  <symbol id="mark" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="0.8"/>
+    <line x1="12" y1="1" x2="12" y2="3.2" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="23" y1="12" x2="20.8" y2="12" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="12" y1="23" x2="12" y2="20.8" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="1" y1="12" x2="3.2" y2="12" stroke="currentColor" stroke-width="1.1"/>
+    <path d="M12 12 L17.2 7.2" stroke="#C26337" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M15.5 7 L17.5 7 L17.5 9" stroke="#C26337" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+    <circle cx="12" cy="12" r="1.4" fill="#C26337"/>
+  </symbol>
+</svg>
+
+<nav class="top">
+  <a href="#" class="logo">
+    <span class="logo-mark"><svg><use href="#mark"/></svg></span>
+    DCA Cockpit
+  </a>
+  <div class="links">
+    <a href="#calc">Projection</a>
+    <a href="#method">Méthode</a>
+    <a href="#">Apprendre</a>
+    <a href="dashboard.html" style="color:var(--ink);">Tableau de bord →</a>
+    <a href="#" class="btn">Accéder</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero wrap">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-eyebrow">Édition du 22 avril 2026 · 41<sup style="font-feature-settings:'sups';">e</sup> signal</div>
+      <h1 class="display">
+        Sachez quand<br>
+        et combien<br>
+        <em>investir</em> chaque mois.
+      </h1>
+      <p class="hero-sub">
+        Chaque matin, un multiplicateur compris entre 0,5× et 2,0× vous indique la pondération à appliquer à votre versement habituel, calibré sur deux indicateurs de marché. Méthode transparente, données publiques, horizon long terme.
+      </p>
+      <div class="hero-cta">
+        <a href="#" class="btn copper">Consulter le signal</a>
+        <a href="#calc" class="btn ghost">Simuler la projection</a>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="num">2 874</span>
+          <span class="lbl">Comptes actifs</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="num">41 mois</span>
+          <span class="lbl">Profondeur d'historique</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="num">+12,4 %</span>
+          <span class="lbl">Vs DCA à montant fixe</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signal card -->
+    <div class="signal-card">
+      <div class="signal-head">
+        <span class="live">EN DIRECT</span>
+        <span>22 · 04 · 2026</span>
+      </div>
+
+      <div class="signal-big">1,5<span class="x">×</span></div>
+      <p class="signal-verdict">
+        Pondération recommandée, une fois et demie le versement habituel.
+      </p>
+
+      <div class="signal-breakdown">
+        <div class="row"><span class="k">FEAR &amp; GREED</span> <span class="v">25 / 100</span></div>
+        <div class="row"><span class="k">DRAWDOWN MSCI</span> <span class="v">−8,2 %</span></div>
+        <div class="row"><span class="k">BTC</span> <span class="v">58 210 €</span></div>
+        <div class="row"><span class="k">MAJ</span> <span class="v">06:12 GMT</span></div>
+      </div>
+
+      <div class="signal-foot">SOURCES · ALTERNATIVE.ME · YAHOO FINANCE · COINGECKO</div>
+    </div>
+  </div>
+</section>
+
+<!-- READING (indicators) -->
+<section class="reading" id="method">
+  <div class="wrap">
+    <div class="section-label">
+      <span class="num">I</span>
+      <span>LECTURE DU MARCHÉ</span>
+      <span class="line"></span>
+    </div>
+
+    <div class="section-head">
+      <h2 class="section-title">Deux indicateurs,<br>un <em>multiplicateur</em>.</h2>
+      <p class="section-lede">
+        Le signal ne prétend pas anticiper le marché. Il traduit, en un coefficient, ce que deux chiffres publics indiquent aujourd'hui, l'humeur des investisseurs crypto, et la distance des actions mondiales à leur dernier sommet.
+      </p>
+    </div>
+
+    <aside class="margin-note">
+      « Ni peur, ni cupidité.<br>
+      Une lecture. »
+    </aside>
+
+    <div class="pedago-cards">
+      <div class="card warm">
+        <div class="card-idx">i.</div>
+        <div class="card-k">Indice Fear &amp; Greed, aujourd'hui</div>
+        <div class="card-num">25<span class="unit">/100</span></div>
+        <div class="card-label">Panique sur les marchés crypto.</div>
+        <p class="card-body">
+          L'indice, publié quotidiennement par alternative.me, mesure l'émotion du marché entre 0 (panique) et 100 (euphorie). Les creux historiques ont souvent correspondu à des points d'entrée favorables pour un investisseur de long terme.
+        </p>
+        <div class="card-gauge v25"></div>
+        <div class="card-foot"><span>0 · PANIQUE</span><span>100 · EUPHORIE</span></div>
+      </div>
+
+      <div class="card olive">
+        <div class="card-idx">ii.</div>
+        <div class="card-k">Drawdown MSCI World</div>
+        <div class="card-num">−8,2<span class="unit">%</span></div>
+        <div class="card-label">Repli par rapport au dernier sommet.</div>
+        <p class="card-body">
+          Le drawdown mesure l'écart, en pourcentage, entre le cours actuel et le plus haut observé sur deux ans. Plus l'écart est négatif, plus les prix sont reculés, et plus le multiplicateur augmente.
+        </p>
+        <div class="card-gauge v82"></div>
+        <div class="card-foot"><span>+0 %</span><span>−40 %</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="calc" id="calc">
+  <div class="wrap">
+    <div class="section-label">
+      <span class="num">II</span>
+      <span>PROJECTION À HORIZON</span>
+      <span class="line"></span>
+    </div>
+
+    <div class="section-head">
+      <h2 class="section-title">Trois scénarios,<br>une même <em>discipline</em>.</h2>
+      <p class="section-lede">
+        La projection repose sur la capitalisation avec intérêts composés. Trois hypothèses de rendement annuel sont présentées, calibrées sur l'historique du MSCI World dividendes réinvestis. Aucune n'est une prédiction, toutes sont plausibles.
+      </p>
+    </div>
+
+    <div class="calc-grid">
+      <div class="calc-controls">
+        <div class="control">
+          <div class="control-label">
+            <span class="k">Montant par versement</span>
+            <span class="v">300<span class="u">€</span></span>
+          </div>
+          <input type="range" class="slider" min="50" max="2000" value="300">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="k">Fréquence</span></div>
+          <div class="seg">
+            <button>Hebdomadaire</button>
+            <button class="active">Mensuelle</button>
+          </div>
+        </div>
+        <div class="control">
+          <div class="control-label">
+            <span class="k">Horizon</span>
+            <span class="v">20<span class="u">ans</span></span>
+          </div>
+          <input type="range" class="slider" min="1" max="40" value="20">
+        </div>
+
+        <div style="padding-top:20px;border-top:1px solid var(--rule);">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:12px;">Bon à savoir</p>
+          <p style="font-size:14px;color:var(--ink-soft);line-height:1.6;">
+            Les <em style="color:var(--copper);font-family:'Instrument Serif',serif;font-style:italic;">dividendes</em> sont inclus dans les rendements. L'inflation, non. Pour estimer ce que ça vaudra en euros d'aujourd'hui, retirez environ 2 % par an.
+          </p>
+        </div>
+      </div>
+
+      <div class="scenarios">
+        <div class="scenario pess">
+          <div class="s-top">
+            <span class="s-k">Scénario défensif</span>
+            <span class="s-badge">Pessimiste</span>
+          </div>
+          <div class="s-rate">rendement annuel, 3,0 %</div>
+          <div class="s-num">98 420<span class="eur">€</span></div>
+          <p class="s-sub">Trajectoire calée sur une décennie « perdue » (type 2000–2010, Japon post-1990), où les marchés mettent du temps à retrouver leurs sommets.</p>
+          <div class="s-row"><span class="k">Total versé</span><span class="v">72 000 €</span></div>
+          <div class="s-row"><span class="k">Intérêts composés</span><span class="v">+ 26 420 €</span></div>
+          <div class="s-row"><span class="k">Multiplicateur capital</span><span class="v">1,37 ×</span></div>
+        </div>
+
+        <div class="scenario realist">
+          <div class="s-top">
+            <span class="s-k">Scénario central</span>
+            <span class="s-badge">Réaliste</span>
+          </div>
+          <div class="s-rate">rendement annuel, 7,0 %</div>
+          <div class="s-num">156 210<span class="eur">€</span></div>
+          <p class="s-sub">Rendement annualisé historique du MSCI World sur trente ans, crises incluses. Référence retenue dans la majorité des études académiques.</p>
+          <div class="s-row"><span class="k">Total versé</span><span class="v">72 000 €</span></div>
+          <div class="s-row"><span class="k">Intérêts composés</span><span class="v">+ 84 210 €</span></div>
+          <div class="s-row"><span class="k">Multiplicateur capital</span><span class="v">2,17 ×</span></div>
+        </div>
+
+        <div class="scenario">
+          <div class="s-top">
+            <span class="s-k">Scénario favorable</span>
+            <span class="s-badge">Optimiste</span>
+          </div>
+          <div class="s-rate">rendement annuel, 10,0 %</div>
+          <div class="s-num">229 080<span class="eur">€</span></div>
+          <p class="s-sub">Trajectoire proche de la performance du S&amp;P 500 sur la dernière décennie. Possible, mais non garantie sur un horizon de vingt ans.</p>
+          <div class="s-row"><span class="k">Total versé</span><span class="v">72 000 €</span></div>
+          <div class="s-row"><span class="k">Intérêts composés</span><span class="v">+ 157 080 €</span></div>
+          <div class="s-row"><span class="k">Multiplicateur capital</span><span class="v">3,18 ×</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRASH EDUCATION -->
+    <div class="crash-box">
+      <div>
+        <div class="note">Note pédagogique · 03</div>
+        <h3>La loi des <em>crashs.</em></h3>
+        <p style="font-size:15px;color:var(--ink-soft);line-height:1.65;margin-top:12px;">
+          Les marchés baissent, c'est leur fonctionnement. Ce qui compte, pour un investisseur en DCA, c'est la capacité du temps à absorber les corrections. Les chiffres suivants, tirés de l'historique MSCI World depuis 1970, l'illustrent.
+        </p>
+      </div>
+      <div class="crash-table">
+        <div class="crash-cell">
+          <div class="c-num">7<span class="u"></span></div>
+          <div class="c-lbl">Corrections de plus de 20 % subies par le MSCI World entre 1970 et 2024.</div>
+        </div>
+        <div class="crash-cell">
+          <div class="c-num">2,4<span class="u">ans</span></div>
+          <div class="c-lbl">Durée moyenne de récupération après une correction, dividendes réinvestis.</div>
+        </div>
+        <div class="crash-cell">
+          <div class="c-num">0<span class="u"></span></div>
+          <div class="c-lbl">Période glissante de vingt ans en DCA à rendement négatif, toutes entrées confondues.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD (dark) -->
+<section class="how">
+  <div class="wrap">
+    <div class="section-label">
+      <span class="num">III</span>
+      <span>LA MÉTHODE</span>
+      <span class="line"></span>
+    </div>
+
+    <div class="section-head">
+      <h2 class="section-title">Un calcul,<br>en <em>trois temps</em>.</h2>
+      <p class="section-lede">
+        Aucune boîte noire. Le multiplicateur se dérive de deux mesures, par une règle pondérée et bornée. Publique, reproductible, auditable.
+      </p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="roman">I.</span>
+        <div class="step-n">LECTURE DU SENTIMENT</div>
+        <h3>L'indice Fear &amp; Greed est ramené sur une échelle [0,5×, 2,0×].</h3>
+        <p>Un indice à 0 correspond à 2,0×. Un indice à 100 correspond à 0,5×. La fonction est linéaire, sans seuil discrétionnaire.</p>
+      </div>
+      <div class="step">
+        <span class="roman">II.</span>
+        <div class="step-n">LECTURE DE LA VALORISATION</div>
+        <h3>Le drawdown du MSCI World subit la même transformation.</h3>
+        <p>Un drawdown supérieur à 35 % sature à 2,0×. Un marché au plus haut sature à 0,5×. Le plafond évite la sur-exposition émotionnelle.</p>
+      </div>
+      <div class="step">
+        <span class="roman">III.</span>
+        <div class="step-n">PONDÉRATION</div>
+        <h3>Les deux coefficients sont pondérés, 60 % F&amp;G, 40 % MSCI.</h3>
+        <p>Le résultat est arrondi au dixième supérieur, puis affiché. La pondération reflète la sensibilité empirique de chaque signal.</p>
+      </div>
+    </div>
+
+    <div class="formula">
+      Multiplicateur <span class="op">=</span> clamp( 0,60 <span class="op">·</span> f(F&amp;G) + 0,40 <span class="op">·</span> g(Drawdown) , 0,5× , 2,0× )
+    </div>
+  </div>
+</section>
+
+<!-- CROSS-SELL APP -->
+<div class="app-bar">
+  <div class="app-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="6" y="2" width="12" height="20" rx="2.5"/><circle cx="12" cy="18" r="1" fill="currentColor"/><line x1="9" y1="5" x2="15" y2="5"/></svg>
+  </div>
+  <div>
+    <h3>Le signal, <em>au réveil</em>, sur l'iPhone.</h3>
+    <p>Une version iOS native est disponible, notifications matinales, widget écran d'accueil, lecture hors ligne. Gratuite, avec suppression de publicités en option.</p>
+  </div>
+  <a href="#" class="btn ghost">Télécharger sur l'App Store →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="col brand">
+    <a href="#" class="logo">
+      <span class="logo-mark"><svg><use href="#mark"/></svg></span>
+      DCA Cockpit
+    </a>
+    <p>Un signal mensuel d'investissement en DCA, fondé sur des indicateurs de marché publics. Édité par Hubert Rochereau, Paris.</p>
+  </div>
+  <div class="col">
+    <h4>Produit</h4>
+    <a href="#">Signal du jour</a>
+    <a href="#">Projection</a>
+    <a href="dashboard.html">Tableau de bord</a>
+    <a href="#">Application iOS</a>
+  </div>
+  <div class="col">
+    <h4>Apprendre</h4>
+    <a href="#">Méthode DCA</a>
+    <a href="#">Indice Fear &amp; Greed</a>
+    <a href="#">MSCI World</a>
+    <a href="#">Intérêts composés</a>
+  </div>
+  <div class="col">
+    <h4>Société</h4>
+    <a href="#">Qui édite ce site</a>
+    <a href="#">Mentions légales</a>
+    <a href="#">Politique de confidentialité</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<div class="disclaimer">
+  Les contenus publiés sur DCA Cockpit sont à caractère informatif et pédagogique. Ils ne constituent ni un conseil en investissement, ni une recommandation personnalisée. Tout investissement comporte un risque de perte en capital. Les performances passées ne préjugent pas des performances futures.
+</div>
+
+</body>
+</html>
