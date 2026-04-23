@@ -1,0 +1,6 @@
+name = "dca-cockpit"
+compatibility_date = "2025-04-23"
+
+[assets]
+directory = "./web/out"
+not_found_handling = "404-page"
