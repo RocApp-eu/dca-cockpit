@@ -23,9 +23,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DCA Cockpit — Votre signal d'investissement mensuel",
+  title: "DCA Cockpit — Votre signal d'investissement hebdomadaire",
   description:
-    "Le multiplicateur DCA calculé chaque mois à partir du Fear & Greed crypto et du drawdown MSCI World. Investissez davantage quand tout le monde panique, alléger quand le marché s'emballe.",
+    "Le multiplicateur DCA calculé chaque semaine à partir du Fear & Greed Index et du drawdown MSCI World. Investissez davantage quand tout le monde panique, alléger quand le marché s'emballe.",
 };
 
 export default function RootLayout({
