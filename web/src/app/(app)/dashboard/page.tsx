@@ -4,7 +4,7 @@ import { SignalHero } from "@/components/dashboard/SignalHero";
 import { SideStats } from "@/components/dashboard/SideStats";
 import { PortfolioCard } from "@/components/dashboard/PortfolioCard";
 import { AiDiagnosis } from "@/components/dashboard/AiDiagnosis";
-import { CapitalChart } from "@/components/dashboard/CapitalChart";
+import { ProjectionTool } from "@/components/dashboard/ProjectionTool";
 import { SettingsCard } from "@/components/dashboard/SettingsCard";
 import { ActivityCard } from "@/components/dashboard/ActivityCard";
 import { IosBanner } from "@/components/dashboard/IosBanner";
@@ -51,11 +51,11 @@ export default function DashboardPage() {
 
       <SectionRuler
         num="VI"
-        title="ÉVOLUTION DE VOTRE CAPITAL"
-        subtitle="36 MOIS"
+        title="SIMULATEUR DE PROJECTION"
+        subtitle="CAPITAL · DURÉE · SCÉNARIOS"
         id="projection"
       />
-      <CapitalChart />
+      <ProjectionTool />
 
       <div
         className="grid-layout"
