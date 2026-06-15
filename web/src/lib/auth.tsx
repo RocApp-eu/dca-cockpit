@@ -12,6 +12,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signOut,
   updateProfile,
@@ -19,6 +21,17 @@ import {
 } from "firebase/auth";
 import { auth } from "./firebase";
 import { ensureUserProfile } from "./user-data";
+
+// Codes d'erreur où la popup Google échoue (Safari/ITP, popup bloquée, etc.) :
+// on bascule alors sur une redirection plein écran, plus robuste.
+const POPUP_FALLBACK_CODES = new Set([
+  "auth/popup-blocked",
+  "auth/popup-closed-by-user",
+  "auth/cancelled-popup-request",
+  "auth/operation-not-supported-in-this-environment",
+  "auth/web-storage-unsupported",
+  "auth/internal-error",
+]);
 
 export type AuthContextValue = {
   user: User | null;
@@ -40,6 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Traite un éventuel retour de signInWithRedirect (Google sur Safari, etc.).
+    getRedirectResult(auth).catch((err) => {
+      console.error("getRedirectResult a échoué", err);
+    });
+
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -65,7 +83,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await ensureUserProfile(cred.user);
     },
     async signInGoogle() {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        const code =
+          typeof err === "object" && err !== null && "code" in err
+            ? String((err as { code: unknown }).code)
+            : "";
+        // Popup bloquée ou non supportée (Safari) : on redirige la page entière.
+        if (POPUP_FALLBACK_CODES.has(code)) {
+          await signInWithRedirect(auth, provider);
+          return;
+        }
+        throw err;
+      }
     },
     async signOutUser() {
       await signOut(auth);
