@@ -65,6 +65,27 @@ async function fromYahoo(symbol) {
   throw lastErr ?? new Error("Yahoo Finance: échec inconnu");
 }
 
+async function fromNasdaq(symbol) {
+  // api.nasdaq.com exige un User-Agent de navigateur, sinon il bloque.
+  const now = new Date();
+  const to = now.toISOString().slice(0, 10);
+  const from = new Date(now.getTime() - 372 * 24 * 3600 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const url = `https://api.nasdaq.com/api/quote/${symbol}/chart?assetclass=etf&fromdate=${from}&todate=${to}`;
+  const res = await fetch(url, {
+    headers: { "user-agent": BROWSER_UA, accept: "application/json" },
+  });
+  if (!res.ok) throw new Error(`Nasdaq ${symbol}: HTTP ${res.status}`);
+  const json = await res.json();
+  const chart = json?.data?.chart;
+  if (!Array.isArray(chart)) {
+    throw new Error(`Nasdaq ${symbol}: ${json?.status?.rCode || "pas de chart"}`);
+  }
+  const closes = chart.map((p) => Number(p?.y ?? p?.z?.close));
+  return drawdownFromCloses(closes, `Nasdaq ${symbol}`);
+}
+
 async function fromAlphaVantage(symbol, apiKey) {
   const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
   const res = await fetch(url, { headers: { accept: "application/json" } });
@@ -93,19 +114,22 @@ async function fromAlphaVantage(symbol, apiKey) {
  *          drawdown négatif, ex: -0.082 pour -8,2 %.
  */
 export async function fetchMsciDrawdown52w(symbol = process.env.MSCI_SYMBOL || "URTH") {
-  try {
-    return await fromYahoo(symbol);
-  } catch (yahooErr) {
-    const key = process.env.ALPHAVANTAGE_KEY;
-    if (key) {
-      try {
-        return await fromAlphaVantage(symbol, key);
-      } catch (avErr) {
-        throw new Error(
-          `Yahoo et Alpha Vantage ont échoué (${yahooErr.message} | ${avErr.message})`,
-        );
-      }
-    }
-    throw yahooErr;
+  const errors = [];
+  // Sources testées dans l'ordre. Nasdaq est sans clé et passe depuis les IP
+  // datacenter (GitHub Actions), contrairement à Yahoo qui renvoie 429.
+  const sources = [
+    () => fromNasdaq(symbol),
+    () => fromYahoo(symbol),
+  ];
+  if (process.env.ALPHAVANTAGE_KEY) {
+    sources.push(() => fromAlphaVantage(symbol, process.env.ALPHAVANTAGE_KEY));
   }
+  for (const src of sources) {
+    try {
+      return await src();
+    } catch (err) {
+      errors.push(err.message);
+    }
+  }
+  throw new Error(`Toutes les sources de drawdown ont échoué: ${errors.join(" | ")}`);
 }
