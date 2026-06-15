@@ -55,6 +55,10 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ env.CF_API_TOKEN }}
+          # Wrangler 3.x appelle /memberships (interdit aux tokens "scoped") et
+          # echoue (code 9106). On epingle wrangler 4, qui deploie avec le seul
+          # account ID, comme en local.
+          wranglerVersion: "4.100.0"
           command: deploy
         env:
           CLOUDFLARE_ACCOUNT_ID: e0b470a35962b3f35f8b1f75242360cc
