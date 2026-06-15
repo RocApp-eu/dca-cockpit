@@ -1,53 +1,47 @@
-const ROWS = [
-  {
-    date: "05 AVR 2026",
-    ev: "Versement, signal supérieur à la moyenne",
-    mul: "1,5 ×",
-    amt: "300 €",
-  },
-  {
-    date: "05 MAR 2026",
-    ev: "Versement, signal neutre",
-    mul: "1,0 ×",
-    amt: "200 €",
-  },
-  {
-    date: "05 FÉV 2026",
-    ev: "Versement, signal inférieur à la moyenne",
-    mul: "0,8 ×",
-    amt: "160 €",
-  },
-  {
-    date: "05 JAN 2026",
-    ev: "Versement, signal de marché euphorique",
-    mul: "0,5 ×",
-    amt: "100 €",
-  },
-  {
-    date: "05 DÉC 2025",
-    ev: "Versement, signal légèrement accru",
-    mul: "1,2 ×",
-    amt: "240 €",
-  },
-];
+"use client";
+
+import { useUserData } from "@/lib/user-context";
+import { fmtInt } from "@/lib/dca-math";
+
+function fmtDate(ms: number): string {
+  if (!ms) return "—";
+  return new Date(ms)
+    .toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    .toUpperCase()
+    .replace(".", "");
+}
 
 export function ActivityCard() {
+  const { deposits } = useUserData();
+  const rows = deposits.slice(0, 6);
+
   return (
     <div className="card activity">
       <div className="card-head">
         <span className="card-title">Derniers versements enregistrés</span>
-        <a href="#" className="link-soft">
+        <a href="/dashboard/versements" className="link-soft">
           Historique complet →
         </a>
       </div>
-      {ROWS.map((r) => (
-        <div className="row" key={r.date}>
-          <span className="d">{r.date}</span>
-          <span className="ev">{r.ev}</span>
-          <span className="mul">{r.mul}</span>
-          <span className="amt">{r.amt}</span>
-        </div>
-      ))}
+      {rows.length === 0 ? (
+        <p className="sub" style={{ padding: "8px 0" }}>
+          Aucun versement enregistré pour le moment. Confirmez votre versement
+          de la semaine depuis le signal en haut de page.
+        </p>
+      ) : (
+        rows.map((r) => (
+          <div className="row" key={r.id}>
+            <span className="d">{fmtDate(r.createdAt)}</span>
+            <span className="ev">{r.note || "Versement"}</span>
+            <span className="mul">{r.multiplier.toFixed(1).replace(".", ",")} ×</span>
+            <span className="amt">{fmtInt(r.amount)} €</span>
+          </div>
+        ))
+      )}
     </div>
   );
 }

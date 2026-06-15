@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "./LogoMark";
+import { UserChip } from "./UserChip";
 
 type NavItemProps = {
   href: string;
@@ -28,10 +29,10 @@ export function Sidebar() {
       </Link>
 
       <div className="nav-group">
-        <div className="nav-label">Mensuel</div>
+        <div className="nav-label">Hebdomadaire</div>
         <NavItem
           href="/dashboard"
-          label="Signal du mois"
+          label="Signal de la semaine"
           active
           icon={
             <svg viewBox="0 0 24 24">
@@ -41,7 +42,7 @@ export function Sidebar() {
           }
         />
         <NavItem
-          href="/dashboard/projection"
+          href="/dashboard#projection"
           label="Projection"
           icon={
             <svg viewBox="0 0 24 24">
@@ -51,7 +52,7 @@ export function Sidebar() {
           }
         />
         <NavItem
-          href="/dashboard/versements"
+          href="/dashboard#versements"
           label="Mes versements"
           icon={
             <svg viewBox="0 0 24 24">
@@ -62,7 +63,7 @@ export function Sidebar() {
           }
         />
         <NavItem
-          href="/dashboard/historique"
+          href="/dashboard#historique"
           label="Historique du signal"
           icon={
             <svg viewBox="0 0 24 24">
@@ -74,7 +75,7 @@ export function Sidebar() {
 
         <div className="nav-label">Portefeuille</div>
         <NavItem
-          href="/dashboard/supports"
+          href="/dashboard#supports"
           label="Mes supports"
           icon={
             <svg viewBox="0 0 24 24">
@@ -86,7 +87,7 @@ export function Sidebar() {
           }
         />
         <NavItem
-          href="/dashboard/diagnostic"
+          href="/dashboard#diagnostic"
           label="Diagnostic IA"
           badge="IA"
           icon={
@@ -97,7 +98,7 @@ export function Sidebar() {
           }
         />
         <NavItem
-          href="/dashboard/diversification"
+          href="/dashboard#diagnostic"
           label="Diversification"
           icon={
             <svg viewBox="0 0 24 24">
@@ -141,7 +142,7 @@ export function Sidebar() {
 
         <div className="nav-label">Réglages</div>
         <NavItem
-          href="/dashboard/parametres"
+          href="/dashboard#versements"
           label="Paramètres"
           icon={
             <svg viewBox="0 0 24 24">
@@ -160,13 +161,7 @@ export function Sidebar() {
             <span className="upgrade-early">Offre early adopters</span>
           </div>
         </Link>
-        <button type="button" className="user-chip">
-          <div className="user-avatar">HR</div>
-          <div>
-            <div className="u-name">Hubert Rochereau</div>
-            <div className="u-plan">Plan gratuit</div>
-          </div>
-        </button>
+        <UserChip />
       </div>
     </aside>
   );

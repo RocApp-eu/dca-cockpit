@@ -1,0 +1,14 @@
+{
+  "name": "dca-cockpit-signal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cron de publication du signal DCA hebdomadaire dans Firestore.",
+  "scripts": {
+    "publish": "node publish-signal.mjs",
+    "dry-run": "node publish-signal.mjs --dry-run"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.2"
+  }
+}

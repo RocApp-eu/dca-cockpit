@@ -78,17 +78,18 @@ Guide ultra-concret, semaine par semaine, pour passer de 0 à plusieurs milliers
 
 ---
 
-## PHASE 2 — ROUTINE MENSUELLE (semaines 2 à 12)
+## PHASE 2 — ROUTINE HEBDOMADAIRE (semaines 2 à 12)
 
-### Rituel MENSUEL (chaque 1er lundi du mois, 45 min)
+### Rituel HEBDOMADAIRE (chaque lundi matin, 30 min)
 
-Le signal DCA mensuel est ton **moteur permanent**. C'est 80% de ton acquisition récurrente.
+Le signal DCA hebdo est ton **moteur permanent**, publié automatiquement chaque dimanche 20h via cron. C'est 80% de ton acquisition récurrente, et la cadence hebdo te donne 4x plus d'opportunités de poster que mensuel.
 
-- [ ] **Préparer le post signal** (15 min) : multiplicateur du mois + contexte F&G + MSCI drawdown + chart simple
-- [ ] **Poster sur r/vosfinances** (5 min) : format reddit-friendly (pas promo)
-- [ ] **Thread X** (10 min) : 5 à 7 tweets avec le signal, tagger 2 à 3 comptes finance FR
-- [ ] **Post LinkedIn** (5 min) : version pro "Pourquoi j'ajuste mon DCA ce mois"
-- [ ] **Story Instagram / TikTok** (10 min, optionnel) si tu as un compte
+- [ ] **Vérifier le signal de la semaine** (5 min) : cockpit.rocapp.eu, multiplicateur publié, contexte F&G + MSCI
+- [ ] **Poster sur r/vosfinances** (10 min) : pas chaque semaine sinon spam, **alterner 2 sur 4** (semaines paires uniquement). Format : "Multiplicateur DCA semaine XX : ×1,4. Voici pourquoi. [méthodo + lien]"
+- [ ] **Thread X / LinkedIn** (10 min) : 1 post bref **chaque semaine** avec le signal, tag 2-3 comptes finance FR. Pas de thread long, juste l'essentiel.
+- [ ] **Story Instagram / TikTok** (5 min, optionnel)
+
+**Astuce volume** : 4 publications X par mois = autant de portes d'entrée SEO/algo qu'1 mois entier en cadence mensuelle.
 
 ### Rituel BI-MENSUEL (tous les 15 jours, 1h30)
 
@@ -126,11 +127,14 @@ Une fois, tu poses ça, ça tourne tout seul pour toujours.
 
 ### Semaine 4 ou 5 (3 jours de setup)
 
-- [ ] Identifier **20 actifs cibles** (MSCI World, S&P 500, Bitcoin, Ethereum, Nasdaq, CAC 40, etc.)
-- [ ] Identifier **10 montants types** (50, 100, 200, 500, 1000 €/mois)
-- [ ] Créer route Next.js dynamique : `/dca/[actif]/[montant]`
+- [ ] Identifier **14 actifs cibles** : MSCI World, S&P 500, Nasdaq 100, CAC 40, Emerging Markets, ETF IA, ETF Dividendes, Or, Bitcoin, Ethereum, Solana, XRP, Obligations EU, Livret A
+- [ ] Identifier **8 montants types** (50, 100, 200, 300, 500, 1000, 2000, 5000 €/mois)
+- [ ] Créer routes Next.js dynamiques :
+  - `/dca/[actif]/[montant]` (112 pages, ETF + crypto)
+  - `/signal/semaine-XX-AAAA` (52 pages/an, archive automatique)
+  - `/methode/[concept]` (10 pages, fear-and-greed-dca, msci-drawdown, etc.)
 - [ ] Template SEO : H1 / paragraphe intro / chart / table de backtest / FAQ / CTA cockpit
-- [ ] Générer **200 à 300 pages** (20 actifs × 10 montants + combinaisons mensuelles)
+- [ ] Générer **130+ pages** (112 dca/actif/montant + 10 méthode + 8 archives initiales)
 - [ ] Soumettre sitemap à Google Search Console
 - [ ] Attendre 3 à 6 mois d'indexation
 

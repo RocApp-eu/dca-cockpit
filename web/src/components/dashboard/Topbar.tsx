@@ -3,7 +3,7 @@ export function Topbar() {
     <header className="topbar">
       <div className="breadcrumb">
         Accueil <span style={{ margin: "0 10px", color: "var(--line)" }}>/</span>
-        <strong>Signal du mois</strong>
+        <strong>Signal de la semaine</strong>
       </div>
       <div className="top-actions">
         <div className="search">

@@ -1,0 +1,32 @@
+name: Publication du signal hebdomadaire
+
+# Chaque dimanche. GitHub planifie en UTC : 18:00 UTC = 20:00 Paris (heure d'été),
+# 19:00 Paris (heure d'hiver). Ajustez si vous voulez 20:00 pile toute l'année.
+on:
+  schedule:
+    - cron: "0 18 * * 0"
+  workflow_dispatch: # permet un lancement manuel (utile pour le premier signal)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Installer les dépendances du cron
+        working-directory: scripts
+        run: npm install --no-audit --no-fund
+
+      - name: Publier le signal dans Firestore
+        working-directory: scripts
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          # Optionnel : repli si Yahoo Finance est indisponible.
+          ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
+        run: node publish-signal.mjs

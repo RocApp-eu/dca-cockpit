@@ -1,78 +1,31 @@
-type PfType = "etf" | "action" | "crypto";
+"use client";
 
-type Holding = {
-  type: PfType;
-  typeLabel: string;
-  name: string;
-  code: string;
-  isin: string;
-  quantity: string;
-  value: string;
-  allocationPct: number;
+import { useMemo, useState, type FormEvent } from "react";
+import { useUserData } from "@/lib/user-context";
+import {
+  addHolding,
+  updateHolding,
+  deleteHolding,
+  TYPE_LABEL,
+  type Holding,
+  type HoldingType,
+  type NewHolding,
+} from "@/lib/user-data";
+import { fmtInt } from "@/lib/dca-math";
+
+type ModalState =
+  | { mode: "add" }
+  | { mode: "edit"; holding: Holding }
+  | null;
+
+const EMPTY: NewHolding = {
+  type: "etf",
+  name: "",
+  code: "",
+  isin: "",
+  quantity: 0,
+  value: 0,
 };
-
-const HOLDINGS: Holding[] = [
-  {
-    type: "etf",
-    typeLabel: "ETF",
-    name: "iShares Core MSCI World",
-    code: "SWDA · iShares · Capitalisant",
-    isin: "IE00B4L5Y983",
-    quantity: "42,3210",
-    value: "4 128 €",
-    allocationPct: 48.8,
-  },
-  {
-    type: "etf",
-    typeLabel: "ETF",
-    name: "Amundi MSCI World",
-    code: "CW8 · Amundi · Capitalisant",
-    isin: "LU1681043599",
-    quantity: "8,1400",
-    value: "1 685 €",
-    allocationPct: 19.9,
-  },
-  {
-    type: "etf",
-    typeLabel: "ETF",
-    name: "Amundi MSCI Emerging Markets",
-    code: "AEEM · Amundi · Capitalisant",
-    isin: "LU1681045370",
-    quantity: "18,0000",
-    value: "724 €",
-    allocationPct: 8.6,
-  },
-  {
-    type: "action",
-    typeLabel: "Action",
-    name: "LVMH Moët Hennessy",
-    code: "MC · Euronext Paris",
-    isin: "FR0000121014",
-    quantity: "1,5000",
-    value: "968 €",
-    allocationPct: 11.4,
-  },
-  {
-    type: "crypto",
-    typeLabel: "Crypto",
-    name: "Bitcoin",
-    code: "BTC · portefeuille principal",
-    isin: "—",
-    quantity: "0,0124",
-    value: "782 €",
-    allocationPct: 9.3,
-  },
-  {
-    type: "crypto",
-    typeLabel: "Crypto",
-    name: "Ethereum",
-    code: "ETH · portefeuille principal",
-    isin: "—",
-    quantity: "0,1820",
-    value: "168 €",
-    allocationPct: 2.0,
-  },
-];
 
 function EditIcon() {
   return (
@@ -83,7 +36,192 @@ function EditIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    </svg>
+  );
+}
+
+function HoldingModal({
+  state,
+  onClose,
+  onSubmit,
+}: {
+  state: Exclude<ModalState, null>;
+  onClose: () => void;
+  onSubmit: (h: NewHolding) => Promise<void>;
+}) {
+  const initial = state.mode === "edit" ? state.holding : EMPTY;
+  const [form, setForm] = useState<NewHolding>({
+    type: initial.type,
+    name: initial.name,
+    code: initial.code,
+    isin: initial.isin,
+    quantity: initial.quantity,
+    value: initial.value,
+  });
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!form.name.trim()) return;
+    setBusy(true);
+    try {
+      await onSubmit({
+        ...form,
+        name: form.name.trim(),
+        code: form.code.trim(),
+        isin: form.isin.trim() || "—",
+        quantity: Number(form.quantity) || 0,
+        value: Number(form.value) || 0,
+      });
+      onClose();
+    } catch (err) {
+      console.error("enregistrement support a échoué", err);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div
+      className="pf-modal-overlay"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <form className="pf-modal" onSubmit={handleSubmit}>
+        <h3 className="pf-modal-title">
+          {state.mode === "add" ? "Ajouter un support" : "Modifier le support"}
+        </h3>
+
+        <label className="pf-field">
+          <span>Type</span>
+          <select
+            value={form.type}
+            onChange={(e) =>
+              setForm({ ...form, type: e.target.value as HoldingType })
+            }
+          >
+            <option value="etf">ETF</option>
+            <option value="action">Action</option>
+            <option value="crypto">Crypto</option>
+          </select>
+        </label>
+        <label className="pf-field">
+          <span>Nom</span>
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            placeholder="iShares Core MSCI World"
+            required
+          />
+        </label>
+        <label className="pf-field">
+          <span>Code / description</span>
+          <input
+            type="text"
+            value={form.code}
+            onChange={(e) => setForm({ ...form, code: e.target.value })}
+            placeholder="SWDA · iShares · Capitalisant"
+          />
+        </label>
+        <label className="pf-field">
+          <span>ISIN / identifiant</span>
+          <input
+            type="text"
+            value={form.isin}
+            onChange={(e) => setForm({ ...form, isin: e.target.value })}
+            placeholder="IE00B4L5Y983"
+          />
+        </label>
+        <div className="pf-field-row">
+          <label className="pf-field">
+            <span>Quantité</span>
+            <input
+              type="number"
+              step="any"
+              min={0}
+              value={form.quantity}
+              onChange={(e) =>
+                setForm({ ...form, quantity: Number(e.target.value) })
+              }
+            />
+          </label>
+          <label className="pf-field">
+            <span>Valeur (€)</span>
+            <input
+              type="number"
+              step="any"
+              min={0}
+              value={form.value}
+              onChange={(e) =>
+                setForm({ ...form, value: Number(e.target.value) })
+              }
+            />
+          </label>
+        </div>
+
+        <div className="pf-modal-actions">
+          <button type="button" className="btn-ghost" onClick={onClose}>
+            Annuler
+          </button>
+          <button type="submit" className="btn-add" disabled={busy}>
+            {busy ? "Enregistrement…" : "Enregistrer"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export function PortfolioCard() {
+  const { uid, holdings } = useUserData();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | HoldingType>("all");
+  const [modal, setModal] = useState<ModalState>(null);
+
+  const totalValue = useMemo(
+    () => holdings.reduce((s, h) => s + h.value, 0),
+    [holdings],
+  );
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return holdings.filter((h) => {
+      if (filter !== "all" && h.type !== filter) return false;
+      if (!q) return true;
+      return (
+        h.name.toLowerCase().includes(q) ||
+        h.code.toLowerCase().includes(q) ||
+        h.isin.toLowerCase().includes(q)
+      );
+    });
+  }, [holdings, search, filter]);
+
+  async function handleSubmit(data: NewHolding) {
+    if (!uid) return;
+    if (modal?.mode === "edit") {
+      await updateHolding(uid, modal.holding.id, data);
+    } else {
+      await addHolding(uid, data);
+    }
+  }
+
+  async function handleDelete(h: Holding) {
+    if (!uid) return;
+    if (!window.confirm(`Supprimer « ${h.name} » de votre portefeuille ?`)) {
+      return;
+    }
+    try {
+      await deleteHolding(uid, h.id);
+    } catch (err) {
+      console.error("suppression a échoué", err);
+    }
+  }
+
   return (
     <div className="portfolio-card">
       <div className="portfolio-head">
@@ -92,15 +230,25 @@ export function PortfolioCard() {
             Vos lignes, <em>une par une</em>.
           </h3>
           <p>
-            Déclarez vos ETF, actions et cryptomonnaies. Recherche par nom, ticker ou code ISIN. Les
-            données de cotation sont mises à jour quotidiennement.
+            Déclarez vos ETF, actions et cryptomonnaies. Recherche par nom,
+            ticker ou code ISIN. Les valeurs sont celles que vous saisissez.
           </p>
         </div>
         <div className="portfolio-actions">
-          <button type="button" className="btn-ghost">
+          <button
+            type="button"
+            className="btn-ghost"
+            disabled
+            title="Import CSV, disponible bientôt"
+          >
             Importer CSV
           </button>
-          <button type="button" className="btn-add">
+          <button
+            type="button"
+            className="btn-add"
+            onClick={() => setModal({ mode: "add" })}
+            disabled={!uid}
+          >
             <svg
               width="13"
               height="13"
@@ -123,10 +271,19 @@ export function PortfolioCard() {
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.3-4.3" />
           </svg>
-          Rechercher un support, nom, ticker ou ISIN
-          <span className="ex">ex. IE00B4L5Y983 · BTC · AAPL</span>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher un support, nom, ticker ou ISIN"
+            className="pf-search-input"
+          />
         </div>
-        <select defaultValue="all" aria-label="Filtrer par type">
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as "all" | HoldingType)}
+          aria-label="Filtrer par type"
+        >
           <option value="all">Tous les types</option>
           <option value="etf">ETF</option>
           <option value="action">Actions</option>
@@ -134,66 +291,115 @@ export function PortfolioCard() {
         </select>
       </div>
 
-      <table className="portfolio-table">
-        <thead>
-          <tr>
-            <th style={{ width: 90 }}>Type</th>
-            <th>Support</th>
-            <th>Identifiant</th>
-            <th className="num">Quantité</th>
-            <th className="num">Valeur</th>
-            <th className="num" style={{ width: 160 }}>
-              Allocation
-            </th>
-            <th style={{ width: 40 }} />
-          </tr>
-        </thead>
-        <tbody>
-          {HOLDINGS.map((h) => (
-            <tr key={h.name}>
-              <td>
-                <span className={`pf-type ${h.type}`}>{h.typeLabel}</span>
-              </td>
-              <td>
-                <div className="pf-asset">
-                  <span className="name">{h.name}</span>
-                  <span className="code">{h.code}</span>
-                </div>
-              </td>
-              <td className="pf-isin">{h.isin}</td>
-              <td className="num">{h.quantity}</td>
-              <td className="num">{h.value}</td>
-              <td className="num">
-                <span className="pf-bar">
-                  <span style={{ width: `${h.allocationPct}%` }} />
-                </span>
-                <span className="pf-pct">
-                  {h.allocationPct.toLocaleString("fr-FR", { minimumFractionDigits: 1 })} %
-                </span>
-              </td>
-              <td>
-                <button type="button" className="pf-action-btn" title="Modifier">
-                  <EditIcon />
-                </button>
-              </td>
+      {holdings.length === 0 ? (
+        <div className="pf-empty">
+          <p>Votre portefeuille est vide.</p>
+          <button
+            type="button"
+            className="btn-add"
+            onClick={() => setModal({ mode: "add" })}
+            disabled={!uid}
+          >
+            Ajouter votre premier support
+          </button>
+        </div>
+      ) : (
+        <table className="portfolio-table">
+          <thead>
+            <tr>
+              <th style={{ width: 90 }}>Type</th>
+              <th>Support</th>
+              <th>Identifiant</th>
+              <th className="num">Quantité</th>
+              <th className="num">Valeur</th>
+              <th className="num" style={{ width: 160 }}>
+                Allocation
+              </th>
+              <th style={{ width: 70 }} />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filtered.map((h) => {
+              const pct = totalValue > 0 ? (h.value / totalValue) * 100 : 0;
+              return (
+                <tr key={h.id}>
+                  <td>
+                    <span className={`pf-type ${h.type}`}>
+                      {TYPE_LABEL[h.type]}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="pf-asset">
+                      <span className="name">{h.name}</span>
+                      <span className="code">{h.code}</span>
+                    </div>
+                  </td>
+                  <td className="pf-isin">{h.isin}</td>
+                  <td className="num">
+                    {h.quantity.toLocaleString("fr-FR", {
+                      maximumFractionDigits: 4,
+                    })}
+                  </td>
+                  <td className="num">{fmtInt(h.value)} €</td>
+                  <td className="num">
+                    <span className="pf-bar">
+                      <span style={{ width: `${pct}%` }} />
+                    </span>
+                    <span className="pf-pct">
+                      {pct.toLocaleString("fr-FR", {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      })}{" "}
+                      %
+                    </span>
+                  </td>
+                  <td>
+                    <div className="pf-row-actions">
+                      <button
+                        type="button"
+                        className="pf-action-btn"
+                        title="Modifier"
+                        onClick={() => setModal({ mode: "edit", holding: h })}
+                      >
+                        <EditIcon />
+                      </button>
+                      <button
+                        type="button"
+                        className="pf-action-btn"
+                        title="Supprimer"
+                        onClick={() => handleDelete(h)}
+                      >
+                        <TrashIcon />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
 
       <div className="portfolio-foot">
-        <span>6 LIGNES DÉCLARÉES · DERNIÈRE MAJ, 22.04.2026</span>
+        <span>
+          {holdings.length} LIGNE{holdings.length > 1 ? "S" : ""} DÉCLARÉE
+          {holdings.length > 1 ? "S" : ""}
+        </span>
         <div className="totals">
           <span>
             <span className="k">Valeur totale</span>
-            <span className="v">8 455 €</span>
-          </span>
-          <span>
-            <span className="k">Versé cumulé</span>
-            <span className="v">8 450 €</span>
+            <span className="v">{fmtInt(totalValue)} €</span>
           </span>
         </div>
       </div>
+
+      {modal && (
+        <HoldingModal
+          state={modal}
+          onClose={() => setModal(null)}
+          onSubmit={handleSubmit}
+        />
+      )}
     </div>
   );
 }
