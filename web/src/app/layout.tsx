@@ -23,9 +23,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://dca.rocapp.eu"),
   title: "DCA Cockpit — Votre signal d'investissement hebdomadaire",
   description:
     "Le multiplicateur DCA calculé chaque semaine à partir du Fear & Greed Index et du drawdown MSCI World. Investissez davantage quand tout le monde panique, alléger quand le marché s'emballe.",
+  alternates: { canonical: "/" },
 };
 
 export default function RootLayout({
