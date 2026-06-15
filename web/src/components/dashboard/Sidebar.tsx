@@ -98,6 +98,38 @@ export function Sidebar() {
           }
         />
 
+        <div className="nav-label">Apprendre</div>
+        <NavItem
+          href="/methode"
+          label="Méthode DCA"
+          icon={
+            <svg viewBox="0 0 24 24">
+              <path d="M4 19.5V5a2 2 0 0 1 2-2h14v18H6a2 2 0 0 0-2 2" />
+              <path d="M20 3v18" />
+            </svg>
+          }
+        />
+        <NavItem
+          href="/fear-and-greed"
+          label="Fear & Greed"
+          icon={
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9 9h.01M15 9h.01M9 15c1 1 5 1 6 0" />
+            </svg>
+          }
+        />
+        <NavItem
+          href="/msci-world"
+          label="MSCI World"
+          icon={
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+            </svg>
+          }
+        />
+
         <div className="nav-label">Réglages</div>
         <NavItem
           href="/dashboard#versements"
