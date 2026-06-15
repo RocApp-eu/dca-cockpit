@@ -29,7 +29,7 @@ jobs:
         # Config Firebase web : ce ne sont PAS des secrets (clés publiques côté
         # client, protégées par les règles Firestore et les domaines autorisés).
         env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyDQHY3wkHw9Fw9Vz0OTYPqmpjtytiBmtE
+          NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyDQHY3wkHw9Fw9Vz0OTYPpqmpjtytiBmtE
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: dca-cockpit-web.firebaseapp.com
           NEXT_PUBLIC_FIREBASE_PROJECT_ID: dca-cockpit-web
           NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: dca-cockpit-web.firebasestorage.app
