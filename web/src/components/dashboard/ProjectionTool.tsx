@@ -11,10 +11,12 @@ import { useUserData } from "@/lib/user-context";
 
 type Scenario = { r: number; label: string; sub: string };
 
+// Calibrés sur l'historique du MSCI World dividendes réinvestis, alignés sur le
+// calculateur de la landing (central réaliste ~7 %).
 const SCENARIOS: Scenario[] = [
   { r: 0.03, label: "Pessimiste", sub: "3 % / an" },
-  { r: 0.06, label: "Réaliste", sub: "6 % / an" },
-  { r: 0.09, label: "Optimiste", sub: "9 % / an" },
+  { r: 0.07, label: "Réaliste", sub: "7 % / an" },
+  { r: 0.1, label: "Optimiste", sub: "10 % / an" },
 ];
 
 export function ProjectionTool() {

@@ -19,6 +19,9 @@ export function SignalHero() {
   const { latest, loading } = useSignal();
   const { uid, profile, deposits } = useUserData();
   const [busy, setBusy] = useState(false);
+  // null = on suit le montant suggéré ; sinon la saisie brute (string, pour
+  // autoriser un champ momentanément vide pendant la frappe).
+  const [customRaw, setCustomRaw] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -59,11 +62,20 @@ export function SignalHero() {
   const effMult = Math.min(mult, cap); // respecte le plafond personnel
   const usual = profile?.settings.usualAmount ?? 50;
   const suggested = Math.round(usual * effMult);
-  const monthlyEq = Math.round((suggested * 52) / 12);
+  const isCustom = customRaw !== null; // l'utilisateur a touché le champ
+  const inputValue = customRaw ?? String(suggested);
+  const amount =
+    customRaw === null
+      ? suggested
+      : customRaw.trim() === "" || !Number.isFinite(Number(customRaw))
+        ? 0
+        : Math.max(0, Math.round(Number(customRaw)));
+  const monthlyEq = Math.round((amount * 52) / 12);
   const capped = effMult < mult;
 
   const alreadyConfirmed = deposits.some((d) => d.weekId === latest.weekId);
-  const canConfirm = Boolean(uid && profile) && !alreadyConfirmed && !busy;
+  const canConfirm =
+    Boolean(uid && profile) && !alreadyConfirmed && !busy && amount > 0;
 
   const fg = latest.fearGreed;
   const fgWarn = fg < 50;
@@ -77,12 +89,18 @@ export function SignalHero() {
     setBusy(true);
     try {
       await addDeposit(uid, {
-        amount: suggested,
-        multiplier: effMult,
+        amount,
+        // Pour un montant personnalisé, le multiplicateur stocké reflète le
+        // montant réel (amount/habituel), pour rester cohérent dans l'historique.
+        multiplier:
+          isCustom && usual > 0
+            ? Math.round((amount / usual) * 100) / 100
+            : effMult,
         weekId: latest.weekId,
         weekLabel: `S${latest.week} ${latest.year}`,
-        note:
-          mult >= 1.05
+        note: isCustom
+          ? "Versement saisi manuellement"
+          : mult >= 1.05
             ? "Versement renforcé, signal supérieur à la moyenne"
             : mult <= 0.95
               ? "Versement allégé, marché tendu vers l'euphorie"
@@ -150,10 +168,31 @@ export function SignalHero() {
         <div>
           <div className="label">Versement cette semaine</div>
           <div className="value">
-            {suggested} €
+            <span className="signal-amount-field">
+              <input
+                type="number"
+                min={0}
+                step={5}
+                value={inputValue}
+                onChange={(e) => setCustomRaw(e.target.value)}
+                disabled={alreadyConfirmed}
+                aria-label="Montant du versement"
+              />
+              <span className="signal-amount-cur">€</span>
+            </span>
             <span className="from">
-              habituel {usual} € / sem · équivalent mensuel {monthlyEq} €
-              {capped ? ` · plafonné à ×${comma(cap)}` : ""}
+              suggéré {suggested} € (habituel {usual} € × {comma(effMult)})
+              {capped ? ` · plafonné à ×${comma(cap)}` : ""} · équivalent mensuel{" "}
+              {monthlyEq} €
+              {isCustom && !alreadyConfirmed ? (
+                <button
+                  type="button"
+                  className="signal-amount-reset"
+                  onClick={() => setCustomRaw(null)}
+                >
+                  réinitialiser
+                </button>
+              ) : null}
             </span>
           </div>
         </div>
@@ -168,7 +207,7 @@ export function SignalHero() {
             ? "Versement confirmé ✓"
             : busy
               ? "Enregistrement…"
-              : "Confirmer le versement"}
+              : `Confirmer ${amount} €`}
         </button>
       </div>
 

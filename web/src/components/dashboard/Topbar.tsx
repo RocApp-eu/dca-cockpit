@@ -1,9 +1,27 @@
+"use client";
+
+import { useMobileNav } from "@/lib/mobile-nav";
+
 export function Topbar() {
+  const { open, setOpen } = useMobileNav();
   return (
     <header className="topbar">
-      <div className="breadcrumb">
-        Accueil <span style={{ margin: "0 10px", color: "var(--line)" }}>/</span>
-        <strong>Signal de la semaine</strong>
+      <div className="topbar-left">
+        <button
+          type="button"
+          className="topbar-burger"
+          onClick={() => setOpen(true)}
+          aria-label="Ouvrir le menu"
+          aria-expanded={open}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
+        <div className="breadcrumb">
+          Accueil <span style={{ margin: "0 10px", color: "var(--line)" }}>/</span>
+          <strong>Signal de la semaine</strong>
+        </div>
       </div>
       <div className="top-actions">
         <div className="search">

@@ -1595,7 +1595,27 @@ em { font-style: italic; color: var(--copper); font-weight: inherit; }
 /* ── RESPONSIVE ────────────────────────────────── */
 @media (max-width: 1024px) {
   .shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
+  /* La sidebar devient un tiroir coulissant, rappelé par le burger. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 268px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.26s ease;
+    overflow-y: auto;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 0 48px rgba(0, 0, 0, 0.55);
+  }
+  /* .shell augmente la spécificité pour battre la règle de base .nav-overlay
+     {display:none} qui apparaît plus loin dans le fichier. */
+  .shell .nav-overlay { display: block; }
+  .nav-overlay.open { opacity: 1; pointer-events: auto; }
+  .topbar-burger { display: inline-flex; }
   .grid-layout,
   .ai-findings,
   .affiliate-grid,
@@ -2244,4 +2264,72 @@ em { font-style: italic; color: var(--copper); font-weight: inherit; }
 @media (max-width: 1024px) {
   .content-title { font-size: 32px; }
   .content-lede { font-size: 17px; }
+}
+
+/* ── VERSEMENT : montant éditable ──────────────── */
+.signal-amount-field { display: inline-flex; align-items: baseline; gap: 2px; }
+.signal-amount-field input {
+  width: 7ch;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px dashed var(--line);
+  color: var(--ink);
+  font-family: var(--font-geist), sans-serif;
+  font-weight: 500;
+  font-size: inherit;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding: 0 2px 2px;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.signal-amount-field input::-webkit-outer-spin-button,
+.signal-amount-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.signal-amount-field input:focus { border-bottom-color: var(--copper); }
+.signal-amount-field input:disabled { border-bottom-color: transparent; color: var(--ink); }
+.signal-amount-cur { color: var(--ink); font-weight: 500; }
+.signal-amount-reset {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--copper);
+  font-size: 11.5px;
+  font-family: inherit;
+  margin-left: 8px;
+  text-decoration: underline;
+  padding: 0;
+}
+.signal-amount-reset:hover { color: var(--copper-deep); }
+
+/* ── NAV MOBILE (burger + tiroir) ──────────────── */
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar-burger {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+  border-radius: 7px;
+  color: var(--ink);
+  cursor: pointer;
+  flex: none;
+}
+.topbar-burger:hover { background: var(--panel-alt); }
+.topbar-burger svg { width: 18px; height: 18px; }
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 7, 0.55);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.26s ease;
 }

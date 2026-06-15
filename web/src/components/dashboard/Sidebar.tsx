@@ -1,6 +1,10 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import { LogoMark } from "./LogoMark";
 import { UserChip } from "./UserChip";
+import { useMobileNav } from "@/lib/mobile-nav";
 
 type NavItemProps = {
   href: string;
@@ -21,14 +25,44 @@ function NavItem({ href, label, icon, active, badge }: NavItemProps) {
 }
 
 export function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <Link href="/" className="logo">
-        <LogoMark />
-        DCA Cockpit
-      </Link>
+  const { open, setOpen } = useMobileNav();
+  const close = () => setOpen(false);
 
-      <div className="nav-group">
+  // Tiroir ouvert : Échap ferme, le scroll du body est verrouillé, et on referme
+  // si on repasse en desktop (>1024px).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    const onResize = () => {
+      if (window.innerWidth > 1024) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+      document.body.style.overflow = prev;
+    };
+  }, [open, setOpen]);
+
+  return (
+    <>
+      <div
+        className={`nav-overlay ${open ? "open" : ""}`.trim()}
+        onClick={close}
+        aria-hidden="true"
+      />
+      <aside className={`sidebar ${open ? "open" : ""}`.trim()}>
+        <Link href="/" className="logo" onClick={close}>
+          <LogoMark />
+          DCA Cockpit
+        </Link>
+
+        <div className="nav-group" onClick={close}>
         <div className="nav-label">Hebdomadaire</div>
         <NavItem
           href="/dashboard"
@@ -143,7 +177,7 @@ export function Sidebar() {
         />
       </div>
 
-      <div className="sidebar-foot">
+      <div className="sidebar-foot" onClick={close}>
         <Link href="/dashboard/premium" className="upgrade-chip">
           <div className="upgrade-k">Débloquer le signal complet</div>
           <div className="upgrade-v">
@@ -153,6 +187,7 @@ export function Sidebar() {
         </Link>
         <UserChip />
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
