@@ -1,0 +1,49 @@
+name: Déploiement Cloudflare
+
+# Déploie automatiquement le cockpit à chaque push sur main.
+# Plus besoin de terminal : tu pushes depuis GitHub Desktop, ça se met en ligne.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Évite deux déploiements simultanés.
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build (export statique Next.js)
+        working-directory: web
+        # Config Firebase web : ce ne sont PAS des secrets (clés publiques côté
+        # client, protégées par les règles Firestore et les domaines autorisés).
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyDQHY3wkHw9Fw9Vz0OTYPqmpjtytiBmtE
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: dca-cockpit-web.firebaseapp.com
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: dca-cockpit-web
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: dca-cockpit-web.firebasestorage.app
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "453742080792"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:453742080792:web:fa390c0f1fa37516c0e46d"
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-N77077MBQ7
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy vers Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: e0b470a35962b3f35f8b1f75242360cc
