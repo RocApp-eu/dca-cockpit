@@ -40,10 +40,21 @@ jobs:
           npm ci
           npm run build
 
+      # Le token colle dans le secret peut contenir un saut de ligne parasite,
+      # ce qui casse l'en-tete Authorization. On retire tout espace (les tokens
+      # Cloudflare n'en contiennent jamais) et on re-masque la valeur nettoyee.
+      - name: Normaliser le token Cloudflare
+        env:
+          RAW_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          CLEAN="$(printf '%s' "$RAW_TOKEN" | tr -d '[:space:]')"
+          echo "::add-mask::$CLEAN"
+          echo "CF_API_TOKEN=$CLEAN" >> "$GITHUB_ENV"
+
       - name: Deploy vers Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ env.CF_API_TOKEN }}
           command: deploy
         env:
           CLOUDFLARE_ACCOUNT_ID: e0b470a35962b3f35f8b1f75242360cc
