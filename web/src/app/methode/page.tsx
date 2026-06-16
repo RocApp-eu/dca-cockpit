@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "La méthode DCA expliquée — DCA Cockpit",
   description:
     "Le DCA (investissement programmé) et le multiplicateur hebdomadaire de DCA Cockpit : investir plus quand le marché panique, moins quand il s'emballe. Formule publique et transparente.",
-  alternates: { canonical: "/methode" },
+  alternates: { canonical: "/methode/" },
 };
 
 export default function MethodePage() {

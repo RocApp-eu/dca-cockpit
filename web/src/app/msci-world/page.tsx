@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Le MSCI World expliqué — DCA Cockpit",
   description:
     "Ce qu'est l'indice MSCI World (1 500 entreprises, 23 pays développés), la notion de drawdown 52 semaines, et pourquoi DCA Cockpit s'en sert comme jauge de décote.",
-  alternates: { canonical: "/msci-world" },
+  alternates: { canonical: "/msci-world/" },
 };
 
 export default function MsciWorldPage() {

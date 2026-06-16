@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "L'indice Fear & Greed expliqué — DCA Cockpit",
   description:
     "Ce que mesure l'indice Fear & Greed (peur et avidité), comment le lire de 0 à 100, et pourquoi DCA Cockpit l'utilise pour piloter votre versement hebdomadaire.",
-  alternates: { canonical: "/fear-and-greed" },
+  alternates: { canonical: "/fear-and-greed/" },
 };
 
 export default function FearAndGreedPage() {
